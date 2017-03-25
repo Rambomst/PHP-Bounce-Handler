@@ -1,0 +1,20 @@
+{
+    "name": "rambomst/php-bounce-handler",
+    "type": "library",
+    "description": "Chops up bounce notifications into associative arrays and returns header information with bounce statuses",
+    "keywords": ["php", "bounce", "email", "mail"],
+    "homepage": "https://github.com/rambomst/PHP-Bounce-Handler/",
+    "license": "BSD",
+    "version": "1.1",
+    "authors": [
+        {
+            "name": "Patrick O'Connell",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PHPBounceHandler\\": "src/"
+        }
+    }
+}
