@@ -28,7 +28,7 @@ if(!empty($_GET['testall'])){
         foreach($files as $file) {
             echo "<a href=\"".$_SERVER['PHP_SELF']."?eml=".urlencode($file)."\">$file</a> ";
             $bounce = file_get_contents("eml/".$file);
-            $multiArray = $bouncehandler->getTheFacts($bounce);
+            $multiArray = $bouncehandler->parseEmail($bounce);
             if(   !empty($multiArray[0]['action'])
                 && !empty($multiArray[0]['status'])
                 && !empty($multiArray[0]['recipient']) ){

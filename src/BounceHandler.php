@@ -1,8 +1,8 @@
 <?php
 
-namespace PHPBounceHandler;
+namespace rambomst\PHPBounceHandler;
 
-require_once __DIR__ . '/../src/BounceStatus.php';
+use BounceStatus;
 
 class BounceHandler {
 
@@ -50,17 +50,14 @@ class BounceHandler {
     }
 
     public function parseEmail($email) {
-        return $this->getTheFacts($email);
-    }
-
-    public function getTheFacts($email) {
         // fluff up the email
         $bounce = $this->initBounceHandler($email);
 
         if (strpos($bounce, "\r\n\r\n") !== false) {
             list($head, $body) = preg_split("/\r\n\r\n/", $bounce, 2);
         } else {
-            list($head, $body) = array($bounce, '');
+            $head = $bounce;
+            $body = '';
         }
 
         $this->head_hash = $this->parseHead($head);
@@ -110,8 +107,8 @@ class BounceHandler {
                 $this->fbl_hash = $this->standardParser($mime_sections['machine_parsable_body_part']);
                 $returned_hash = $this->standardParser($mime_sections['returned_message_body_part']);
 
-                if (!empty($returnedhash['Return-path'])) {
-                    $this->fbl_hash['Original-mail-from'] = $returnedhash['Return-path'];
+                if (!empty($returned_hash['Return-path'])) {
+                    $this->fbl_hash['Original-mail-from'] = $returned_hash['Return-path'];
                 } elseif (empty($this->fbl_hash['Original-mail-from']) && !empty($returned_hash['From'])) {
                     $this->fbl_hash['Original-mail-from'] = $returned_hash['From'];
                 }

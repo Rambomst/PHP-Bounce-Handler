@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPBounceHandler;
+namespace rambomst\PHPBounceHandler;
 
 class BounceStatus {
 
@@ -607,22 +607,9 @@ class BounceStatus {
         'warning: message',
     );
 
-    public static function getAutoRespondList() {
-        return self::$auto_respond_list;
-    }
-
-    public static function getBounceList() {
-        return self::$bounce_list;
-    }
-
-    public static function getBounceSubj() {
-        return self::$bounce_subj;
-    }
-
-    public static function getStatusCodeClasses() {
-        return self::$status_code_classes;
-    }
-    public static function getStatusCodeSubClasses() {
-        return self::$status_code_sub_classes;
-    }
+    public static function getAutoRespondList()         { return self::$auto_respond_list; }
+    public static function getBounceList()              { return self::$bounce_list; }
+    public static function getBounceSubj()              { return self::$bounce_subj; }
+    public static function getStatusCodeClasses()       { return self::$status_code_classes; }
+    public static function getStatusCodeSubClasses()    { return self::$status_code_sub_classes; }
 }
