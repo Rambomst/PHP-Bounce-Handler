@@ -2,8 +2,6 @@
 
 namespace rambomst\PHPBounceHandler;
 
-use BounceStatus;
-
 class BounceHandler {
 
     // Properties
