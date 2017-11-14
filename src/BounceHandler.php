@@ -1,8 +1,6 @@
 <?php
 
-namespace rambomst\PHPBounceHandler;
-
-use BounceStatus;
+namespace kloining\PHPBounceHandler;
 
 class BounceHandler {
 

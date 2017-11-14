@@ -1,20 +1,20 @@
 {
-    "name": "rambomst/php-bounce-handler",
+    "name": "kloining/php-bounce-handler",
     "type": "library",
     "description": "Parses email bounce notifications and turns them into associative arrays and returns header information with bounce statuses",
     "keywords": ["php", "bounce", "email", "mail"],
     "homepage": "https://github.com/rambomst/PHP-Bounce-Handler/",
     "license": "BSD",
-    "version": "1.2",
+    "version": "1.2.2",
     "authors": [
         {
-            "name": "Patrick O'Connell",
+            "name": "Kristian Løining",
             "role": "Developer"
         }
     ],
     "autoload": {
         "psr-4": {
-            "rambomst\\PHPBounceHandler\\": "src/"
+            "kloining\\PHPBounceHandler\\": "src/"
         }
     }
 }
