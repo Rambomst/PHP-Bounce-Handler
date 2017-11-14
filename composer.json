@@ -8,17 +8,13 @@
     "version": "1.2",
     "authors": [
         {
-            "name": "Patrick O'Connell",
-            "role": "Developer"
-        },
-        {
             "name": "Kristian Løining",
             "role": "Developer"
         }
     ],
     "autoload": {
         "psr-4": {
-            "rambomst\\PHPBounceHandler\\": "src/"
+            "kloining\\PHPBounceHandler\\": "src/"
         }
     }
 }
