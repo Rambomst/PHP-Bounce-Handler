@@ -10,6 +10,10 @@
         {
             "name": "Patrick O'Connell",
             "role": "Developer"
+        },
+        {
+            "name": "Kristian Løining",
+            "role": "Developer"
         }
     ],
     "autoload": {
