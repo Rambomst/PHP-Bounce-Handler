@@ -1,5 +1,5 @@
 {
-    "name": "rambomst/php-bounce-handler",
+    "name": "kloining/php-bounce-handler",
     "type": "library",
     "description": "Parses email bounce notifications and turns them into associative arrays and returns header information with bounce statuses",
     "keywords": ["php", "bounce", "email", "mail"],
