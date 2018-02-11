@@ -4,7 +4,7 @@
     "description": "Parses email bounce notifications and turns them into associative arrays and returns header information with bounce statuses",
     "keywords": ["php", "bounce", "email", "mail"],
     "homepage": "https://github.com/rambomst/PHP-Bounce-Handler/",
-    "license": "BSD",
+    "license": "BSD-3-Clause",
     "version": "1.4",
     "authors": [
         {
