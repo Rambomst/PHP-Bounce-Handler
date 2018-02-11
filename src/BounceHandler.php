@@ -63,7 +63,9 @@ class BounceHandler {
         // parse the email into data structures
         $boundary = null;
         if (isset($this->head_hash['Content-type'])) {
-            $boundary = $this->head_hash['Content-type']['boundary'];
+            if(array_key_exists('boundary',$this->head_hash['Content-type'])) {
+                $boundary = $this->head_hash['Content-type']['boundary'];
+            }
         }
 
         $mime_sections = $this->parseBodyIntoMimeSections($body, $boundary);
@@ -248,7 +250,8 @@ class BounceHandler {
         $this->output = array();
 
         $strEmail = preg_replace("/(?<!\r)\n/", "\r\n", $blob);
-        return str_replace(array("=\r\n", '=3D', '=09'), array('', '=', '  '), $strEmail);
+        return $strEmail;
+        // return str_replace(array("=\r\n", '=3D', '=09'), array('', '=', '  '), $strEmail);
     }
 
     // general purpose recursive heuristic function
@@ -464,6 +467,7 @@ class BounceHandler {
             }
         }
 
+
         return $hash;
     }
 
@@ -549,7 +553,7 @@ class BounceHandler {
         if (preg_match('/([245]\.[01234567]\.\d{1,2})\s*(.*)/', $code, $matches)) {
             $ret['code'] = $matches[1];
             $ret['text'] = $matches[2];
-        } elseif (preg_match('/([245])([01234567])(\d{1,2})\s*(.*)/', $code, $matches)) {
+        } elseif (preg_match('/([245])([01234567])(\d{1,2})[\s\-]*(.*)/', $code, $matches)) {
             $ret['code'] = $matches[1]. '.'. $matches[2]. '.'. $matches[3];
             $ret['text'] = $matches[4];
         }
@@ -594,7 +598,7 @@ class BounceHandler {
     public function decodeDiagnosticCode($diagnostic_code) {
         if (preg_match("/(\d\.\d\.\d)\s/", $diagnostic_code, $array)) {
             return $array[1];
-        } elseif (preg_match("/(\d\d\d)\s/", $diagnostic_code, $array)) {
+        } elseif (preg_match("/(\d\d\d)[\s\-]/", $diagnostic_code, $array)) {
             return $array[1];
         }
 
