@@ -5,7 +5,7 @@
     "keywords": ["php", "bounce", "email", "mail"],
     "homepage": "https://github.com/rambomst/PHP-Bounce-Handler/",
     "license": "BSD-3-Clause",
-    "version": "1.4",
+    "version": "1.6",
     "authors": [
         {
             "name": "Patrick O'Connell",
