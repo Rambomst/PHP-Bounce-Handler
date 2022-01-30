@@ -151,7 +151,9 @@ class BounceHandler {
                     $this->output[$key]['recipient'] = trim($email_address);
                 }
             }
-        } elseif ($this->isRFC1892MultipartReport() === true) {
+        } elseif ($this->isRFC1892MultipartReport($mime_sections) === true) {
+            // TODO: this should probably be cached.  It's already parsed in
+            //       isRFC1982MultipartReport
             $rpt_hash = $this->parseMachineParsableBodyPart($mime_sections['machine_parsable_body_part']);
             foreach ($rpt_hash['per_recipient'] as $key => $hash) {
                 $this->output[$key]['recipient'] = $this->findRecipient($hash);
@@ -313,8 +315,23 @@ class BounceHandler {
         return '5.5.0';  #other or unknown status
     }
 
-    public function isRFC1892MultipartReport() {
-        return isset($this->head_hash['Content-type']) && $this->head_hash['Content-type']['type'] === 'multipart/report' && $this->head_hash['Content-type']['report-type'] === 'delivery-status' && $this->head_hash['Content-type']['boundary'] !== '';
+    public function isRFC1892MultipartReport($mime_sections) {
+        // Some mail servers dont follow the RFC.  There can still be
+        // a delivery status report in multipart/mixed messages
+        if(!isset($this->head_hash['Content-type'])
+            || !isset($this->head_hash['Content-type']['boundary'])
+            || ($this->head_hash['Content-type']['type'] !== 'multipart/report' && $this->head_hash['Content-type']['type'] !== 'multipart/mixed')
+            || ($this->head_hash['Content-type']['type'] === 'multipart/report' && $this->head_hash['Content-type']['report-type'] !== 'delivery-status')) {
+            return false;
+        }
+        if(!array_key_exists('machine_parsable_body_part',$mime_sections)) {
+            return false;
+        }
+        $rpt_hash = $this->parseMachineParsableBodyPart($mime_sections['machine_parsable_body_part']);
+        if(isset($rpt_hash['mime_header']['Content-type']) && $rpt_hash['mime_header']['Content-type'] === 'message/delivery-status') {
+            return true;
+        }
+        return false;
     }
 
     public function parseHead($headers) {
@@ -440,8 +457,15 @@ class BounceHandler {
                 if (isset($temp['Original-recipient'])) {
                     $arr = explode (';', $temp['Original-recipient']);
                     $temp['Original-recipient'] = array();
-                    $temp['Original-recipient']['type'] = trim($arr[0]);
-                    $temp['Original-recipient']['addr'] = trim($arr[1]);
+                    if(count($arr) > 1) {
+                        $temp['Original-recipient']['type'] = trim($arr[0]);
+                        $temp['Original-recipient']['addr'] = trim($arr[1]);
+                    }
+                    else {
+                        $temp['Original-recipient']['type'] = "";
+                        // May be in <>
+                        $temp['Original-recipient']['addr'] = trim($arr[0]);
+                    }
                 }
 
                 if (isset($temp['Diagnostic-code'])) {
@@ -578,7 +602,12 @@ class BounceHandler {
         }
 
         $ret = $this->formatStatusCode($code);
-        $stat = $ret['code'][0];
+        if($ret) {
+            $stat = $ret['code'][0];
+        }
+        else {
+            $stat = 1;
+        }
         switch ($stat) {
             case(2):
                 return 'success';
@@ -616,8 +645,11 @@ class BounceHandler {
             return true;
         }
 
-        if (preg_match("/^(postmaster|mailer-daemon)\@?/i", $this->head_hash['From'])) {
-            return true;
+        $from = $this->findEmailAddresses($this->head_hash['From']);
+        if(count($from)) {
+            if (preg_match("/^(postmaster|mailer-daemon)\@?/i", $from[0])) {
+                return true;
+            }
         }
 
         return false;
@@ -671,6 +703,17 @@ class BounceHandler {
             if (preg_match("/$a/i", $subj)) {
                 return true;
             }
+        }
+
+        // AOL & gmail autoreply, maybe others.  RFC3834 Sectoin 5.1 suggests
+        // other potential matches.
+        // https://tools.ietf.org/html/rfc3834#section-5
+        if(isset($this->head_hash['Auto-submitted']) && stripos($this->head_hash['Auto-submitted'], 'auto-replied') !== false) {
+            return true;
+        }
+
+        if(isset($this->head_hash['Delivered-to']) && stripos($this->head_hash['Delivered-to'],'autoresponder') !== false) {
+            return true;
         }
 
         return false;

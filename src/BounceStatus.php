@@ -583,7 +583,8 @@ class BounceStatus {
         'delivery notification',
         'delivery problem',
         'delivery reports about your email',
-        'delivery status notif',
+        // 'delivery status notif',
+        'delivery status',
         'failure delivery',
         'failure notice',
         'mail delivery fail',			#catches failure and failed
