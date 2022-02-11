@@ -157,7 +157,16 @@ class BounceHandler {
             $rpt_hash = $this->parseMachineParsableBodyPart($mime_sections['machine_parsable_body_part']);
             foreach ($rpt_hash['per_recipient'] as $key => $hash) {
                 $this->output[$key]['recipient'] = $this->findRecipient($hash);
-                $my_code = $this->formatStatusCode($hash['Status']);
+                // Sometime the Status code is completey empty - in that case try to decode
+                // the necessary information from the Diagnostic code
+                if (empty($hash['Status'])) {
+                    $ddc = $this->decodeDiagnosticCode($hash['Diagnostic-code']['text']);
+                    $hash['Action'] = $this->getActionFromStatusCode($ddc);
+                    $my_code['code'] = $this->getStatusCodeFromText($hash['Diagnostic-code']['text'], 0);
+                } else {
+                    $my_code = $this->formatStatusCode($hash['Status']);
+                }
+
                 $this->output[$key]['status'] = $my_code['code'];
                 $this->output[$key]['action'] = $hash['Action'];
             }
@@ -321,7 +330,7 @@ class BounceHandler {
         if(!isset($this->head_hash['Content-type'])
             || !isset($this->head_hash['Content-type']['boundary'])
             || ($this->head_hash['Content-type']['type'] !== 'multipart/report' && $this->head_hash['Content-type']['type'] !== 'multipart/mixed')
-            || ($this->head_hash['Content-type']['type'] === 'multipart/report' && $this->head_hash['Content-type']['report-type'] !== 'delivery-status')) {
+            || ($this->head_hash['Content-type']['type'] === 'multipart/report' && (!isset ($this->head_hash['Content-type']['report-type']) || $this->head_hash['Content-type']['report-type'] !== 'delivery-status' ))) {
             return false;
         }
         if(!array_key_exists('machine_parsable_body_part',$mime_sections)) {
@@ -369,11 +378,9 @@ class BounceHandler {
 
         $body = explode($boundary, $body);
         $mime_sections['first_body_part']            = $body[1];
-        $mime_sections['machine_parsable_body_part'] = $body[2];
+        $mime_sections['machine_parsable_body_part'] = isset($body[2])?$body[2]:'';
+        $mime_sections['returned_message_body_part'] = isset($body[3])?$body[3]:'';
 
-        if (isset($body[3])) {
-            $mime_sections['returned_message_body_part'] = $body[3];
-        }
 
         return $mime_sections;
     }
@@ -472,7 +479,13 @@ class BounceHandler {
                     $arr = explode (';', $temp['Diagnostic-code']);
                     $temp['Diagnostic-code'] = array();
                     $temp['Diagnostic-code']['type'] = trim($arr[0]);
-                    $temp['Diagnostic-code']['text'] = trim($arr[1]);
+					// Diagnostic code field sometimes contains the status code instead
+					// In that case save the same text to both fields
+                    if (!isset($arr[1])){
+                        $temp['Diagnostic-code']['text'] = trim($arr[0]);
+                    } else {
+                        $temp['Diagnostic-code']['text'] = trim($arr[1]);
+                    }
                 }
 
                 // now this is weird: plenty of times you see the status code is a permanent failure,
